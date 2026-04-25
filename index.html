@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Aravindhan — Python Backend Developer</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+
 <style>
 :root{
   --ink:#0d0d0d;--paper:#f5f0e8;--cream:#ede7d5;
@@ -213,6 +214,12 @@ section{position:relative;z-index:1;}
 .f-btn::before{content:'';position:absolute;inset:0;background:rgba(0,0,0,.1);transform:scaleX(0);transform-origin:left;transition:transform .3s;}
 .f-btn:hover::before{transform:scaleX(1);}
 .f-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(201,168,76,.3);}
+
+/* ===== FORM STATUS ===== */
+.f-status{display:none;padding:.75rem 1.1rem;border-radius:2px;font-size:.78rem;font-weight:500;text-align:center;margin-top:.3rem;}
+.f-status.success{display:block;background:rgba(74,167,65,.12);border:1px solid rgba(74,167,65,.3);color:#6fcf67;}
+.f-status.error{display:block;background:rgba(196,92,38,.12);border:1px solid rgba(196,92,38,.3);color:#e07a4f;}
+.f-btn:disabled{opacity:.6;cursor:not-allowed;transform:none!important;}
 
 /* ===== FOOTER ===== */
 footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.07);padding:2rem 4rem;display:flex;justify-content:space-between;align-items:center;}
@@ -513,7 +520,7 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.07);padding:
           <p class="proj-desc">A web app to manage student records, attendance, and marks. Built with Django backend and MySQL database with simple HTML/CSS views.</p>
           <div class="proj-footer">
             <div class="proj-links">
-              <a href="https://github.com/aravindhant44-dev" target="_blank" class="proj-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg>GitHub</a>
+              <a href="https://github.com/aravindhant44-dev/student-management-system" target="_blank" class="proj-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg>GitHub</a>
             </div>
             <div class="proj-arrow">→</div>
           </div>
@@ -621,15 +628,16 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.07);padding:
           </a>
         </div>
       </div>
-      <div class="c-form fade fd2">
+      <div class="c-form fade fd2" id="contact-form">
         <div class="c-row">
-          <div class="f-grp"><label class="f-label">First Name</label><input class="f-in" type="text" placeholder="John"></div>
-          <div class="f-grp"><label class="f-label">Last Name</label><input class="f-in" type="text" placeholder="Doe"></div>
+          <div class="f-grp"><label class="f-label">First Name</label><input id="f-firstname" class="f-in" type="text" placeholder="John"></div>
+          <div class="f-grp"><label class="f-label">Last Name</label><input id="f-lastname" class="f-in" type="text" placeholder="Doe"></div>
         </div>
-        <div class="f-grp"><label class="f-label">Email Address</label><input class="f-in" type="email" placeholder="john@example.com"></div>
-        <div class="f-grp"><label class="f-label">Subject</label><input class="f-in" type="text" placeholder="Job Opportunity / Project"></div>
-        <div class="f-grp"><label class="f-label">Message</label><textarea class="f-ta" placeholder="Hi Aravindhan, I'd like to connect..."></textarea></div>
-        <button class="f-btn">Send Message →</button>
+        <div class="f-grp"><label class="f-label">Email Address</label><input id="f-email" class="f-in" type="email" placeholder="john@example.com"></div>
+        <div class="f-grp"><label class="f-label">Subject</label><input id="f-subject" class="f-in" type="text" placeholder="Job Opportunity / Project"></div>
+        <div class="f-grp"><label class="f-label">Message</label><textarea id="f-message" class="f-ta" placeholder="Hi Aravindhan, I'd like to connect..."></textarea></div>
+        <button class="f-btn" id="send-btn" onclick="sendMessage()">Send Message →</button>
+        <div class="f-status" id="f-status"></div>
       </div>
     </div>
   </div>
@@ -780,7 +788,67 @@ window.addEventListener('scroll',()=>{
   if(heroDeco)heroDeco.style.transform=`translateY(${scrollY*0.15}px)`;
 });
 
-/* ===== FORM BUTTON RIPPLE ===== */
+/* ===== FORMSPREE SEND ===== */
+function sendMessage() {
+  const btn = document.getElementById('send-btn');
+  const status = document.getElementById('f-status');
+
+  const firstName = document.getElementById('f-firstname').value.trim();
+  const lastName  = document.getElementById('f-lastname').value.trim();
+  const email     = document.getElementById('f-email').value.trim();
+  const subject   = document.getElementById('f-subject').value.trim();
+  const message   = document.getElementById('f-message').value.trim();
+
+  if (!firstName || !email || !message) {
+    status.className = 'f-status error';
+    status.textContent = '⚠️ Please fill in First Name, Email and Message.';
+    return;
+  }
+  const emailReg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailReg.test(email)) {
+    status.className = 'f-status error';
+    status.textContent = '⚠️ Please enter a valid email address.';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+  status.className = 'f-status';
+  status.textContent = '';
+
+  fetch('https://formspree.io/f/xvzdllar', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({
+      name: firstName + ' ' + lastName,
+      email: email,
+      subject: subject || 'Portfolio Contact',
+      message: message,
+      _subject: 'New message from Aravindhan Portfolio'
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.ok) {
+      status.className = 'f-status success';
+      status.textContent = '✅ Message sent! I\'ll get back to you soon.';
+      ['f-firstname','f-lastname','f-email','f-subject','f-message'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+    } else {
+      throw new Error('Formspree error');
+    }
+    btn.textContent = 'Send Message →';
+    btn.disabled = false;
+  })
+  .catch(() => {
+    status.className = 'f-status error';
+    status.textContent = '❌ Failed to send. Please try again.';
+    btn.textContent = 'Send Message →';
+    btn.disabled = false;
+  });
+}
+
 document.querySelector('.f-btn')&&document.querySelector('.f-btn').addEventListener('click',function(e){
   const r=document.createElement('span');
   const rect=this.getBoundingClientRect();
@@ -794,3 +862,4 @@ document.head.appendChild(rippleStyle);
 </script>
 </body>
 </html>
+
